@@ -119,7 +119,7 @@ const Crop = () => {
                 <p className="text-muted-foreground">{t('crop_desc')}</p>
             </div>
 
-            <Card className="glass-card border-none">
+            <Card className="border-none">
                 <CardHeader>
                     <CardTitle>{t('soil_analysis')}</CardTitle>
                     <CardDescription>{t('soil_desc')}</CardDescription>
@@ -128,16 +128,21 @@ const Crop = () => {
 
                     <div
                         onClick={() => fileInputRef.current.click()}
-                        className="flex flex-col items-center justify-center space-y-2 rounded-lg border-2 border-dashed border-primary/20 p-6 hover:bg-muted/50 cursor-pointer transition-colors relative"
+                        className="flex flex-col items-center justify-center space-y-3 rounded-2xl border-none shadow-soft hover:shadow-lg bg-white p-8 cursor-pointer transition-all active:scale-[0.98] relative"
                     >
                         {analyzingSoil && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg">
-                                <RefreshCw className="h-6 w-6 animate-spin text-primary" />
-                                <span className="ml-2 font-medium">{t('analyzing')}</span>
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm rounded-2xl z-10">
+                                <RefreshCw className="h-8 w-8 animate-spin text-primary" />
+                                <span className="ml-2 font-bold text-primary">{t('analyzing')}</span>
                             </div>
                         )}
-                        <Camera className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm font-medium">{t('analyze_soil_photo')}</span>
+                        <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-1">
+                            <Camera className="h-6 w-6" />
+                        </div>
+                        <div className="text-center">
+                            <span className="text-base font-bold text-foreground block">{t('analyze_soil_photo')}</span>
+                            <span className="text-xs text-muted-foreground">Tap to scan soil report</span>
+                        </div>
                     </div>
 
                     <input

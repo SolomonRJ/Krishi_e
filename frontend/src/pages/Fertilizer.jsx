@@ -62,7 +62,7 @@ const Fertilizer = () => {
                 <p className="text-muted-foreground">{t('fert_desc')}</p>
             </div>
 
-            <Card className="glass-card border-none">
+            <Card className="border-none">
                 <CardHeader>
                     <CardTitle>{t('nutrient_calc')}</CardTitle>
                     <CardDescription>{t('nutrient_desc')}</CardDescription>

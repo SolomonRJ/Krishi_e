@@ -1,29 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ScanLine, Sprout, Droplets, Sun, CloudRain, ArrowRight, TrendingUp, TrendingDown } from 'lucide-react';
+import { ScanLine, Sprout, Droplets, Sun, CloudRain, ArrowRight, TrendingUp, TrendingDown, MapPin } from 'lucide-react';
 import axios from 'axios';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-
+import { motion } from 'framer-motion';
 import { fetchMandiPrices } from '../api/mandi';
-
-import { useTranslation } from 'react-i18next'; // Add import
+import { useTranslation } from 'react-i18next';
 
 const Home = () => {
     const navigate = useNavigate();
-    const { t } = useTranslation(); // Init hook
+    const { t } = useTranslation();
     const [weather, setWeather] = useState(null);
     const [greeting, setGreeting] = useState('');
     const [marketData, setMarketData] = useState([]);
     const [loadingMarket, setLoadingMarket] = useState(true);
-
-    const getTodayDate = () => {
-        const d = new Date();
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        return `${day}/${month}/${year}`;
-    };
 
     useEffect(() => {
         const hour = new Date().getHours();
@@ -31,10 +22,16 @@ const Home = () => {
         else if (hour < 18) setGreeting('good_afternoon');
         else setGreeting('good_evening');
 
-        const storedLocation = localStorage.getItem('userLocation');
-        if (storedLocation) {
-            const { latitude, longitude } = JSON.parse(storedLocation);
-            fetchWeather(latitude, longitude);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    fetchWeather(latitude, longitude);
+                },
+                (error) => {
+                    console.error("Error getting location:", error);
+                }
+            );
         }
 
         loadMarketData();
@@ -43,14 +40,7 @@ const Home = () => {
     const loadMarketData = async () => {
         try {
             setLoadingMarket(true);
-
-            const filters = {
-                // Arrival_Date: getTodayDate(),
-                State: "Tamil Nadu" // optional but improves reliability
-            };
-
-            const data = await fetchMandiPrices(filters, 5, 0);
-
+            const data = await fetchMandiPrices({ State: "Tamil Nadu" }, 5, 0);
             if (data?.records?.length > 0) {
                 setMarketData(data.records);
             } else {
@@ -80,105 +70,145 @@ const Home = () => {
             description: t('detect_disease_desc'),
             icon: ScanLine,
             path: "/disease",
+            color: "text-rose-500",
+            bg: "bg-rose-50 dark:bg-rose-950/20"
         },
         {
             title: t('recommend_crop'),
             description: t('recommend_crop_desc'),
             icon: Sprout,
             path: "/crop",
+            color: "text-emerald-500",
+            bg: "bg-emerald-50 dark:bg-emerald-950/20"
         },
         {
             title: t('fertilizer_guide'),
             description: t('fertilizer_guide_desc'),
             icon: Droplets,
             path: "/fertilizer",
+            color: "text-blue-500",
+            bg: "bg-blue-50 dark:bg-blue-950/20"
         }
     ];
 
-    return (
-        <div className="space-y-8 animate-fade-in">
-            {/* Header Section */}
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground">
-                        {t(greeting)}, <span className="text-primary">Farmer</span>
-                    </h1>
-                    <p className="text-muted-foreground mt-1">{t('daily_overview')}</p>
-                </div>
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <span className="font-bold text-sm text-primary">FA</span>
-                </div>
-            </div>
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+    };
 
-            {/* Weather Widget - Minimal Card */}
-            <Card className="glass-card hover:shadow-2xl transition-all duration-300 border-none">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-base font-medium">Current Weather</CardTitle>
-                    <Sun className="h-5 w-5 text-custom-yellow animate-pulse" /> {/* Assuming custom-yellow or generic yellow class needed, using text-yellow-500 for safety if not defined */}
-                </CardHeader>
-                <CardContent>
-                    <div className="text-3xl font-bold text-foreground">
-                        {weather ? `${Math.round(weather.temperature_2m)}°C` : '--°C'}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                        {weather ? t('sunny_clear') : t('weather_loading')}
-                    </p>
-                </CardContent>
-            </Card>
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: { y: 0, opacity: 1 }
+    };
+
+    return (
+        <motion.div
+            className="space-y-8 pb-24"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+        >
+            {/* Header Section */}
+            <motion.div variants={itemVariants} className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+                        {t(greeting)}, <span className="text-primary block text-4xl mt-1">Farmer</span>
+                    </h1>
+                    <p className="text-muted-foreground mt-2 font-medium">{t('daily_overview')}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center border-2 border-primary/20 shadow-sm">
+                    <span className="font-bold text-lg text-primary">FA</span>
+                </div>
+            </motion.div>
+
+            {/* Weather Widget */}
+            <motion.div variants={itemVariants}>
+                <Card className="border-none shadow-glow-green overflow-hidden relative bg-gradient-to-br from-primary to-emerald-700 text-white">
+                    <div className="absolute top-0 right-0 p-32 bg-white/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-3xl" />
+                    <CardContent className="p-6 relative z-10">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <p className="text-primary-foreground/80 font-medium mb-1">Current Weather</p>
+                                <div className="text-5xl font-bold tracking-tighter">
+                                    {weather ? `${Math.round(weather.temperature_2m)}°` : '--°'}
+                                </div>
+                                <div className="flex items-center mt-2 text-primary-foreground/90 font-medium">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    {t('sunny_clear')}
+                                </div>
+                            </div>
+                            <Sun className="h-16 w-16 text-yellow-300 animate-pulse" />
+                        </div>
+                    </CardContent>
+                </Card>
+            </motion.div>
 
             {/* Quick Actions Grid */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">{t('services')}</h3>
-                <div className="grid gap-4 md:grid-cols-3">
+            <motion.div variants={itemVariants} className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-foreground">{t('services')}</h3>
+                </div>
+                <div className="grid grid-cols-1 gap-4">
                     {features.map((feature, index) => (
                         <Card
                             key={index}
                             onClick={() => navigate(feature.path)}
-                            className="glass-card cursor-pointer hover:bg-white/90 dark:hover:bg-black/40 transition-all duration-300 border-l-4 border-l-primary group"
+                            className="border-none shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer active:scale-[0.99] group"
                         >
-                            <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
-                                <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors">{feature.title}</CardTitle>
-                                <feature.icon className="h-5 w-5 text-muted-foreground group-hover:scale-110 transition-transform" />
-                            </CardHeader>
-                            <CardContent>
-                                <CardDescription>{feature.description}</CardDescription>
+                            <CardContent className="p-4 flex items-center gap-4">
+                                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center ${feature.bg} ${feature.color} group-hover:scale-110 transition-transform`}>
+                                    <feature.icon className="h-7 w-7" />
+                                </div>
+                                <div className="flex-1">
+                                    <h4 className="font-bold text-lg text-foreground">{feature.title}</h4>
+                                    <p className="text-sm text-muted-foreground line-clamp-1">{feature.description}</p>
+                                </div>
+                                <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-primary group-hover:text-white transition-colors">
+                                    <ArrowRight className="h-4 w-4" />
+                                </div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Market Updates - Table/List Style */}
-            <div>
-                <h3 className="text-lg font-semibold mb-4">{t('market_trends')}</h3>
-                <Card>
+            {/* Market Updates */}
+            <motion.div variants={itemVariants} className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-bold text-foreground">{t('market_trends')}</h3>
+                    <Button variant="ghost" size="sm" className="text-primary font-bold">View All</Button>
+                </div>
+                <Card className="border-none shadow-soft">
                     <CardContent className="p-0">
-                        <div className="divide-y">
+                        <div className="divide-y divide-gray-100">
                             {loadingMarket ? (
-                                <div className="p-4 text-center text-sm text-muted-foreground">{t('market_loading')}</div>
+                                <div className="p-8 text-center text-muted-foreground animate-pulse">Loading market rates...</div>
                             ) : marketData.length > 0 ? (
                                 marketData.map((item, index) => (
-                                    <div key={index} className="flex items-center justify-between p-4">
-                                        <div>
-                                            <p className="font-medium">{item.Commodity}</p>
-                                            <p className="text-xs text-muted-foreground">{item.Market}, {item.State}</p>
+                                    <div key={index} className="flex items-center justify-between p-4 hover:bg-gray-50/50 transition-colors">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-10 w-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-xs uppercase border border-orange-100">
+                                                {item.Commodity.substring(0, 2)}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-foreground">{item.Commodity}</p>
+                                                <p className="text-xs font-medium text-muted-foreground">{item.Market}</p>
+                                            </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-bold">₹{item.Modal_Price}</p>
-                                            <p className="text-xs text-muted-foreground">
-                                                {item.Variety}
-                                            </p>
+                                            <p className="font-bold text-lg text-primary">₹{item.Modal_Price}</p>
+                                            <p className="text-xs text-muted-foreground font-medium">{item.Variety}</p>
                                         </div>
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-4 text-center text-sm text-muted-foreground">{t('no_market_data')}</div>
+                                <div className="p-8 text-center text-muted-foreground">No market data available</div>
                             )}
                         </div>
                     </CardContent>
                 </Card>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 };
 
