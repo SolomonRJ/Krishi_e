@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Premium "Nature Tech" Palette - Light Mode */
+    --background: 0 0% 100%;       /* #ffffff */
+    --foreground: 165 40% 15%;     /* #16362d - Deep Jungle Green */
+
+    --card: 0 0% 100%;
+    --card-foreground: 165 40% 15%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 165 40% 15%;
+ 
+    --primary: 155 65% 35%;        /* #1f9e5d - Vibrant Leaf Green */
+    --primary-foreground: 0 0% 100%;
+ 
+    --secondary: 150 40% 96%;      /* #f0fdf6 - Very Light Mint */
+    --secondary-foreground: 155 30% 30%;
+ 
+    --muted: 150 20% 94%;
+    --muted-foreground: 160 10% 45%;
+ 
+    --accent: 155 65% 35%;
+    --accent-foreground: 150 40% 96%;
+ 
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 150 20% 90%;
+    --input: 150 20% 90%;
+    --ring: 155 65% 35%;
+ 
+    --radius: 0.75rem;
+  }
+ 
+  .dark {
+    /* Premium "Nature Tech" Palette - Dark Mode */
+    --background: 165 45% 4%;      /* #050f0c - Very Deep Green/Black */
+    --foreground: 150 20% 94%;
+ 
+    --card: 165 40% 6%;
+    --card-foreground: 150 20% 94%;
+ 
+    --popover: 165 40% 6%;
+    --popover-foreground: 150 20% 94%;
+ 
+    --primary: 155 60% 55%;        /* #4ad38a - Brighter Green for Dark Mode */
+    --primary-foreground: 165 45% 4%;
+ 
+    --secondary: 165 30% 12%;
+    --secondary-foreground: 150 20% 94%;
+ 
+    --muted: 165 30% 12%;
+    --muted-foreground: 150 15% 65%;
+ 
+    --accent: 165 30% 12%;
+    --accent-foreground: 150 20% 94%;
+ 
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 150 20% 94%;
+ 
+    --border: 165 30% 12%;
+    --input: 165 30% 12%;
+    --ring: 155 60% 55%;
+  }
+}
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm dark:bg-black/30 dark:border-white/10;
+  }
+  
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/40 shadow-xl dark:bg-gray-900/60 dark:border-white/10;
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
